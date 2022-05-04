@@ -20,3 +20,45 @@ if ($env:MSI_SECRET) {
 # Enable-AzureRmAlias
 
 # You can also define functions or aliases that can be referenced in any of your PowerShell functions.
+function ReturnError {
+    param (
+        [Parameter()]
+        $StatusCode,
+        [Parameter()]
+        [string]
+        $ErrorDesc,
+        [Parameter()]
+        [string]
+        $ExceptionMsg,
+        [Parameter()]
+        [string]
+        $ScriptStackTrace,
+        [Parameter()]
+        [Switch]
+        $DisconnectPnP,
+        [Parameter()]
+        [Switch]
+        $DisconnectEXO
+    )
+    Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
+            StatusCode = $StatusCode
+            Body       = @{Error       = $ErrorDesc
+                ExceptionMsg     = $ExceptionMsg
+                ScriptStackTrace = $ScriptStackTrace
+            } | ConvertTo-Json
+        })
+    if ($true -eq $DisconnectEXO)
+    {
+        Disconnect-ExchangeOnline -Confirm:$false
+    }
+    if ($true -eq $DisconnectPnP)
+    {
+        Disconnect-PnPOnline
+    }
+    exit
+}
+function Disconnect
+{
+    Disconnect-ExchangeOnline -Confirm:$false
+    Disconnect-PnPOnline
+}
