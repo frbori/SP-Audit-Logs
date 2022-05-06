@@ -22,23 +22,12 @@ if ($env:MSI_SECRET) {
 # You can also define functions or aliases that can be referenced in any of your PowerShell functions.
 function ReturnError {
     param (
-        [Parameter()]
-        $StatusCode,
-        [Parameter()]
-        [string]
-        $ErrorDesc,
-        [Parameter()]
-        [string]
-        $ExceptionMsg,
-        [Parameter()]
-        [string]
-        $ScriptStackTrace,
-        [Parameter()]
-        [Switch]
-        $DisconnectPnP,
-        [Parameter()]
-        [Switch]
-        $DisconnectEXO
+        [Parameter()]$StatusCode,
+        [Parameter()][string]$ErrorDesc,
+        [Parameter()][string]$ExceptionMsg,
+        [Parameter()][string]$ScriptStackTrace,
+        [Parameter()][Switch]$DisconnectPnP,
+        [Parameter()][Switch]$DisconnectEXO
     )
     Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
             StatusCode = $StatusCode
@@ -47,18 +36,15 @@ function ReturnError {
                 ScriptStackTrace = $ScriptStackTrace
             } | ConvertTo-Json
         })
-    if ($true -eq $DisconnectEXO)
-    {
-        Disconnect-ExchangeOnline -Confirm:$false
+    if ($true -eq $DisconnectEXO) {
+        Disconnect-ExchangeOnline -Confirm:$false -ErrorAction SilentlyContinue
     }
-    if ($true -eq $DisconnectPnP)
-    {
-        Disconnect-PnPOnline
+    if ($true -eq $DisconnectPnP) {
+        Disconnect-PnPOnline -ErrorAction SilentlyContinue
     }
     exit
 }
-function Disconnect
-{
-    Disconnect-ExchangeOnline -Confirm:$false
-    Disconnect-PnPOnline
+function Disconnect {
+    Disconnect-ExchangeOnline -Confirm:$false -ErrorAction SilentlyContinue
+    Disconnect-PnPOnline -ErrorAction SilentlyContinue
 }
