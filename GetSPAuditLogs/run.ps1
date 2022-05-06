@@ -96,7 +96,7 @@ catch {
 #endregion Connections
 
 #region Retrieving Audit Log Data
-Write-Host "Retrieving audit records for the date range between $($start) and $($end), RecordType=$record, ResultsSize=$resultSize"
+Write-Host "Retrieving audit records for the date range between $start and $end, RecordType=$record, ResultsSize=$resultSize"
 while ($true) {
     $currentEnd = $currentStart.AddMinutes($env:INTERVAL_MINUTES)
     if ($currentEnd -gt $end) {
@@ -136,7 +136,7 @@ while ($true) {
             $totalCount += $results.Count
             
             if ($currentTotal -eq $results[$results.Count - 1].ResultIndex) {
-                Write-Host "Successfully retrieved $($currentTotal) audit records for the current time range. Moving on to the next interval." -foregroundColor Yellow
+                Write-Host "Successfully retrieved $($currentTotal) audit records for the current time range. Moving on to the next interval."
                 break
             }
         }
@@ -145,8 +145,10 @@ while ($true) {
 
     $currentStart = $currentEnd
 }
-Write-Host "Finished retrieving audit records for the date range between $($start) and $($end). Total count: $totalCount" -foregroundColor Green
+Write-Host "Finished retrieving audit records for the date range between $($start) and $($end). Total count: $totalCount"
+#endregion Retrieving Audit Log Data
 
+#region Saving the report .csv file into SharePoint
 $docLib = Get-PnPList -Identity $docLibName
 if ($null -eq $docLib) {
     try {
@@ -166,11 +168,11 @@ if (Test-Path -Path $outputFile) {
     }
     Remove-Item -Path $outputFile
 }
-#endregion Retrieving Audit Log Data
+#endregion Saving the report .csv file into SharePoint
 
 Disconnect
 
-# Associate values to output bindings by calling 'Push-OutputBinding'.
+# Associate values to output bindings
 Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
         StatusCode = [HttpStatusCode]::OK
         Body       = @{RecordsRetrieved = $totalCount } | ConvertTo-Json
